@@ -184,7 +184,7 @@ PUT /index/type/id
   "json数据"
 }
 
-PUT /ecommerce/product/1
+PUT /ecommerce/_doc/1
 {
     "name" : "gaolujie yagao",
     "desc" :  "gaoxiao meibai",
@@ -193,21 +193,7 @@ PUT /ecommerce/product/1
     "tags": [ "meibai", "fangzhu" ]
 }
 
-{
-  "_index": "ecommerce",
-  "_type": "product",
-  "_id": "1",
-  "_version": 1,
-  "result": "created",
-  "_shards": {
-    "total": 2,
-    "successful": 1,
-    "failed": 0
-  },
-  "created": true
-}
-
-PUT /ecommerce/product/2
+PUT /ecommerce/_doc/2
 {
     "name" : "jiajieshi yagao",
     "desc" :  "youxiao fangzhu",
@@ -216,7 +202,7 @@ PUT /ecommerce/product/2
     "tags": [ "fangzhu" ]
 }
 
-PUT /ecommerce/product/3
+PUT /ecommerce/_doc/3
 {
     "name" : "zhonghua yagao",
     "desc" :  "caoben zhiwu",
@@ -225,34 +211,14 @@ PUT /ecommerce/product/3
     "tags": [ "qingxin" ]
 }
 
-es会自动建立index和type，不需要提前创建，而且es默认会对document每个field都建立倒排索引，让其可以被搜索
+es会自动建立index，不需要提前创建，而且es默认会对document每个field都建立倒排索引，让其可以被搜索
 
 （2）查询商品：检索文档
 
 GET /index/type/id
 GET /ecommerce/product/1
-
-{
-  "_index": "ecommerce",
-  "_type": "product",
-  "_id": "1",
-  "_version": 1,
-  "found": true,
-  "_source": {
-    "name": "gaolujie yagao",
-    "desc": "gaoxiao meibai",
-    "price": 30,
-    "producer": "gaolujie producer",
-    "tags": [
-      "meibai",
-      "fangzhu"
-    ]
-  }
-}
-
 （3）修改商品：替换文档
-
-PUT /ecommerce/product/1
+PUT /ecommerce/_doc/1
 {
     "name" : "jiaqiangban gaolujie yagao",
     "desc" :  "gaoxiao meibai",
@@ -260,91 +226,24 @@ PUT /ecommerce/product/1
     "producer" :      "gaolujie producer",
     "tags": [ "meibai", "fangzhu" ]
 }
-
-{
-  "_index": "ecommerce",
-  "_type": "product",
-  "_id": "1",
-  "_version": 1,
-  "result": "created",
-  "_shards": {
-    "total": 2,
-    "successful": 1,
-    "failed": 0
-  },
-  "created": true
-}
-
-{
-  "_index": "ecommerce",
-  "_type": "product",
-  "_id": "1",
-  "_version": 2,
-  "result": "updated",
-  "_shards": {
-    "total": 2,
-    "successful": 1,
-    "failed": 0
-  },
-  "created": false
-}
-
-
-PUT /ecommerce/product/1
-{
-    "name" : "jiaqiangban gaolujie yagao"
-}
-
 替换方式有一个不好，即使必须带上所有的field，才能去进行信息的修改
 
 （4）修改商品：更新文档
 
-POST /ecommerce/product/1/_update
+POST /ecommerce/_update/1
 {
   "doc": {
     "name": "jiaqiangban gaolujie yagao"
   }
 }
 
-{
-  "_index": "ecommerce",
-  "_type": "product",
-  "_id": "1",
-  "_version": 8,
-  "result": "updated",
-  "_shards": {
-    "total": 2,
-    "successful": 1,
-    "failed": 0
-  }
-}
-
-我的风格，其实有选择的情况下，不太喜欢念ppt，或者照着文档做，或者直接粘贴写好的代码，尽量是纯手敲代码
-
 （5）删除商品：删除文档
 
 DELETE /ecommerce/product/1
 
-{
-  "found": true,
-  "_index": "ecommerce",
-  "_type": "product",
-  "_id": "1",
-  "_version": 9,
-  "result": "deleted",
-  "_shards": {
-    "total": 2,
-    "successful": 1,
-    "failed": 0
-  }
-}
+高级搜索部分
 
-{
-  "_index": "ecommerce",
-  "_type": "product",
-  "_id": "1",
-  "found": false
-}
+---------------------------------------------------------------------------------------------------------------------------------
 
 
 1、query string search
@@ -355,8 +254,7 @@ DELETE /ecommerce/product/1
 6、highlight search
 
 ---------------------------------------------------------------------------------------------------------------------------------
-
-把英文翻译成中文，让我觉得很别扭，term，词项
+term，词项
 
 1、query string search
 
@@ -368,7 +266,6 @@ _shards：数据拆成了5个分片，所以对于搜索请求，会打到所有
 hits.total：查询结果的数量，3个document
 hits.max_score：score的含义，就是document对于一个search的相关度的匹配分数，越相关，就越匹配，分数也高
 hits.hits：包含了匹配搜索的document的详细数据
-
 
 {
   "took": 2,
@@ -469,7 +366,7 @@ GET /ecommerce/product/_search
 
 分页查询商品，总共3条商品，假设每页就显示1条商品，现在显示第2页，所以就查出来第2个商品
 
-GET /ecommerce/product/_search
+GET /ecommerce/_search
 {
   "query": { "match_all": {} },
   "from": 1,
@@ -478,7 +375,7 @@ GET /ecommerce/product/_search
 
 指定要查询出来商品的名称和价格就可以
 
-GET /ecommerce/product/_search
+GET /ecommerce/_search
 {
   "query": { "match_all": {} },
   "_source": ["name", "price"]
@@ -522,8 +419,6 @@ GET /ecommerce/product/_search
         }
     }
 }
-
-尽量，无论是学什么技术，比如说你当初学java，学linux，学shell，学javascript，学hadoop。。。。一定自己动手，特别是手工敲各种命令和代码，切记切记，减少复制粘贴的操作。只有自己动手手工敲，学习效果才最好。
 
 producer这个字段，会先被拆解，建立倒排索引
 
@@ -664,7 +559,7 @@ GET /ecommerce/product/_search
 
 6、highlight search（高亮搜索结果）
 
-GET /ecommerce/product/_search
+GET /ecommerce/_search
 {
     "query" : {
         "match" : {
